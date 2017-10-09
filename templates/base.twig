@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+{% block head %}
+<head>
+    <title>{% block title %}{% if pageTitle %}{{ pageTitle|e('html_attr') }} | {% endif %}Discretion{% endblock %}</title>
+
+</head>
+{% endblock %}
+<body>
+{% block body %}
+
+{% endblock %}
+</body>
+</html>

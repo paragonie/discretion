@@ -1,0 +1,50 @@
+{
+    "name": "paragonie/discretion",
+    "description": "On-demand and reusable contact forms that only send GnuPG-encrypted messages to your inbox. Built with Slim Framework.",
+    "keywords": ["GnuPG", "GPG", "email", "contact form", "contact", "mailer", "microservice", "Slim3"],
+    "homepage": "http://github.com/paragonie/discretion",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Paragon Initiative Enterprises",
+            "email": "security@paragonie.com",
+            "homepage": "https://paragonie.com"
+        }
+    ],
+    "require": {
+        "php": "^7",
+        "ezyang/htmlpurifier": "^4",
+        "kelunik/two-factor": "^1",
+        "paragonie/constant_time_encoding": "^2",
+        "paragonie/easydb": "^2",
+        "paragonie/gpg-mailer": "^0|^1",
+        "paragonie/sapient": "^1",
+        "paragonie/sodium_compat": "^1.3",
+        "slim/slim": "^3",
+        "slim/php-view": "^2.0",
+        "twig/twig": "^2",
+        "monolog/monolog": "^1.17"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^6",
+        "vimeo/psalm": "^0|^1"
+    },
+    "autoload": {
+        "psr-4": {
+            "ParagonIE\\Discretion\\": "src/Discretion/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "ParagonIE\\Discretion\\Tests\\": "tests/"
+        }
+    },
+    "config": {
+        "process-timeout" : 0
+    },
+    "scripts": {
+        "start": "php -S localhost:8080 -t public public/index.php",
+        "test": "phpunit",
+        "type-check": "psalm"
+    }
+}
