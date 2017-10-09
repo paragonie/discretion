@@ -23,6 +23,9 @@ require __DIR__ . '/../src/dependencies.php';
 // Register middleware
 require __DIR__ . '/../src/middleware.php';
 
+// Setup the database connection
+require __DIR__ . '/../src/database.php';
+
 // Register routes
 require __DIR__ . '/../src/routes.php';
 

@@ -1,4 +1,6 @@
 <?php
+
+use Slim\Container;
 // DIC configuration
 
 /** @var \Slim\App $app */
@@ -8,15 +10,20 @@ if (!isset($app)) {
 /** @var \Slim\Container $container */
 $container = $app->getContainer();
 
+
+$settings = $container->get('settings')['twig'];
+$twigLoader = new \Twig_Loader_Filesystem($settings['paths']);
+\ParagonIE\Discretion\Discretion::setTwig(
+    new \Twig_Environment($twigLoader, $settings['settings'])
+);
+
 $container['view'] =
     /**
      * @param \Slim\Container $c
      * @return Twig_Environment
      */
     function (\Slim\Container $c) {
-        $settings = $c->get('settings')['twig'];
-        $twigLoader = new \Twig_Loader_Filesystem($settings['paths']);
-        return new \Twig_Environment($twigLoader, $settings['settings']);
+        return \ParagonIE\Discretion\Discretion::getTwig();
     };
 
 $container['logger'] =

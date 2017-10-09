@@ -1,5 +1,7 @@
 /.idea
 /composer.lock
+/local/*
+!/local/.gitkeep
 /logs/*
 !/logs/README.md
 /vendor/

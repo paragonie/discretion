@@ -1,4 +1,6 @@
 <?php
+define('DISCRETION_APP_ROOT', dirname(__DIR__));
+
 return [
     'settings' => [
         'displayErrorDetails' => true, // set to false in production
