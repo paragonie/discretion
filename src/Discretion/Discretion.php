@@ -32,12 +32,12 @@ class Discretion
     /**
      * Create a generic HTTP response, unsigned.
      *
-     * @param int $status
      * @param string $body
      * @param array $headers
+     * @param int $status
      * @return Response
      */
-    public static function createNormalResponse(int $status = 200, string $body = '', array $headers = []): Response
+    public static function createNormalResponse(string $body = '', array $headers = [], int $status = 200): Response
     {
         return new Response(
             $status,
