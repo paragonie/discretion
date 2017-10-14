@@ -35,7 +35,7 @@ class Contact extends Struct
     /**
      * @return User
      */
-    protected function getUser(): User
+    public function getUser(): User
     {
         return User::byId($this->userId);
     }

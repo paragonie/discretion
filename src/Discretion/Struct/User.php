@@ -2,13 +2,14 @@
 declare(strict_types=1);
 namespace ParagonIE\Discretion\Struct;
 
+use ParagonIE\Discretion\Policies\Unique;
 use ParagonIE\Discretion\Struct;
 
 /**
  * Class User
  * @package ParagonIE\Discretion\Struct
  */
-class User extends Struct
+class User extends Struct implements Unique
 {
     const TABLE_NAME = 'discretion_users';
     const PRIMARY_KEY = 'userid';

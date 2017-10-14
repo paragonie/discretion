@@ -35,7 +35,7 @@ class Form extends Struct
     /**
      * @return Theme
      */
-    protected function getTheme(): Theme
+    public function getTheme(): Theme
     {
         return Theme::byId($this->userId);
     }
@@ -43,7 +43,7 @@ class Form extends Struct
     /**
      * @return User
      */
-    protected function getUser(): User
+    public function getUser(): User
     {
         return User::byId($this->userId);
     }

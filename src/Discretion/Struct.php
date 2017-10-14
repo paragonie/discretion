@@ -2,7 +2,9 @@
 declare(strict_types=1);
 namespace ParagonIE\Discretion;
 
+use ParagonIE\ConstantTime\Base64UrlSafe;
 use ParagonIE\Discretion\Exception\RecordNotFound;
+use ParagonIE\Discretion\Policies\Unique;
 
 /**
  * Class Struct
@@ -22,6 +24,12 @@ abstract class Struct
 
     /** @var \DateTimeImmutable $modified */
     protected $modified = null;
+
+    /** @var array $objectCache */
+    protected static $objectCache = [];
+
+    /** @var string $runtimeCacheKey */
+    protected static $runtimeCacheKey = '';
 
     /**
      * Get a new struct by its ID
@@ -46,6 +54,11 @@ abstract class Struct
             " = ?",
             $id
         );
+        if ($self instanceof Unique) {
+            if (\array_key_exists($self->getCacheKey($id), self::$objectCache)) {
+                return self::$objectCache[$self->getCacheKey($id)];
+            }
+        }
         if (empty($row)) {
             throw new RecordNotFound(static::class . '::' . $id);
         }
@@ -58,7 +71,46 @@ abstract class Struct
         if (isset($row['modified'])) {
             $self->modified = new \DateTimeImmutable($row['modified']);
         }
+        if ($self instanceof Unique) {
+            self::$objectCache[$self->getCacheKey($id)] = $self;
+        }
         return $self;
+    }
+
+    /**
+     * @param int $id
+     * @return string
+     * @throws \Error
+     */
+    public function getCacheKey(int $id = 0): string
+    {
+        if (empty(static::$runtimeCacheKey)) {
+            static::$runtimeCacheKey = \random_bytes(
+                \ParagonIE_Sodium_Compat::CRYPTO_SHORTHASH_KEYBYTES
+            );
+        }
+
+        $plaintext = \json_encode([
+            'class' => \get_class($this),
+            'id' => $id > 0 ? $id : $this->id
+        ]);
+        if (!\is_string($plaintext)) {
+            throw new \Error('Could not calculate cache key');
+        }
+        return Base64UrlSafe::encode(
+            \ParagonIE_Sodium_Compat::crypto_shorthash(
+                $plaintext,
+                static::$runtimeCacheKey
+            )
+        );
+    }
+
+    /**
+     * @return array
+     */
+    public static function getRuntimeCache(): array
+    {
+        return static::$objectCache;
     }
 
     /**
@@ -85,8 +137,10 @@ abstract class Struct
             $fields,
             static::PRIMARY_KEY
         );
+        if ($this instanceof Unique) {
+            self::$objectCache[$this->getCacheKey()] = $this;
+        }
         return $db->commit();
-
     }
 
     /**
