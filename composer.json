@@ -13,6 +13,7 @@
     ],
     "require": {
         "php": "^7",
+        "bacon/bacon-qr-code": "^1",
         "ezyang/htmlpurifier": "^4",
         "kelunik/two-factor": "^1",
         "paragonie/constant_time_encoding": "^2",

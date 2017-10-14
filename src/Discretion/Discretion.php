@@ -47,6 +47,15 @@ class Discretion
     }
 
     /**
+     * @param string $class
+     * @return string
+     */
+    public static function decorateClassName($class = '')
+    {
+        return 'Object (' . \trim($class, '\\') . ')';
+    }
+
+    /**
      * Get the EasyDB object (used for database queries)
      *
      * @return EasyDB
@@ -69,6 +78,36 @@ class Discretion
             return $value ? 1 : 0;
         }
         return !empty($value);
+    }
+
+    /**
+     * Get a variable's type. If it's an object, also get the class name.
+     *
+     * @param mixed $obj
+     * @return string
+     */
+    public static function getGenericType($obj = null)
+    {
+        if (\func_num_args() === 0) {
+            return 'void';
+        }
+        if ($obj === null) {
+            return 'null';
+        }
+        if (\is_object($obj)) {
+            return static::decorateClassName(\get_class($obj));
+        }
+        $type = \gettype($obj);
+        switch ($type) {
+            case 'boolean':
+                return 'bool';
+            case 'double':
+                return 'float';
+            case 'integer':
+                return 'int';
+            default:
+                return $type;
+        }
     }
 
     /**
@@ -139,5 +178,34 @@ class Discretion
     {
         self::$twig = $twig;
         return self::$twig;
+    }
+
+    /**
+     * Quick shortcut method for generating an HTML response from a template.
+     *
+     * @param string $template
+     * @param array $args
+     * @param array $headers
+     * @param int $status
+     * @return Response
+     */
+    public static function view(
+        string $template,
+        array $args = [],
+        array $headers = [],
+        int $status = 200
+    ): Response {
+        if (empty($headers)) {
+            $headers = [
+                'Content-Type' => 'text/html; charset=UTF-8'
+            ];
+        }
+        return new Response(
+            $status,
+            new Headers($headers),
+            (new Slim())->stringToStream(
+                static::getTwig()->render($template, $args)
+            )
+        );
     }
 }

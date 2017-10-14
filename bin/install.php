@@ -16,7 +16,7 @@ $signingKey = \ParagonIE\Sapient\CryptographyKeys\SigningSecretKey::generate();
 // Write the default settings to the local settings file.
 $localSettings = [
     'database' => [
-        'dsn' => 'pgsql:host=localhost;port=5432',
+        'dsn' => 'pgsql:host=localhost;port=5432;dbname=discretion',
         'username' => 'charlie',
         'password' => 'correct horse battery staple'
     ],

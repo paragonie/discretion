@@ -27,11 +27,6 @@ class Index implements HandlerInterface
         ResponseInterface $response,
         array $args = []
     ): ResponseInterface {
-        return Discretion::createNormalResponse(
-            Discretion::getTwig()->render('index.twig'),
-            [
-                'Content-Type' => 'text/html; charset=UTF-8'
-            ]
-        );
+        return Discretion::view('index.twig');
     }
 }

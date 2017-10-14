@@ -1,5 +1,7 @@
 <?php
-define('DISCRETION_APP_ROOT', dirname(__DIR__));
+if (!\defined('DISCRETION_APP_ROOT')) {
+    \define('DISCRETION_APP_ROOT', \dirname(__DIR__));
+}
 
 return [
     'settings' => [
