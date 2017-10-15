@@ -31,6 +31,7 @@ class SimpleCrypto
      */
     public static function decrypt(string $ciphertext, HiddenString $key): HiddenString
     {
+        /** @var string $realCiphertext */
         $realCiphertext = Base64UrlSafe::decode($ciphertext);
         if (!\is_string($realCiphertext)) {
             throw new \InvalidArgumentException('Invalid encoding');
