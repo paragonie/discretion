@@ -9,6 +9,7 @@ php:
 before_install:
 - composer self-update
 - composer update
+- chmod 0777 local
 - php bin/travis-ci.php
 
 script:
