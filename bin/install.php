@@ -2,7 +2,8 @@
 declare(strict_types=1);
 
 $root = \dirname(__DIR__);
-require_once $root . '/cli-autoload.php';
+define('DISCRETION_APP_ROOT', $root);
+require_once $root . '/vendor/autoload.php';
 
 // Generate a signing key.
 $signingKey = \ParagonIE\Sapient\CryptographyKeys\SigningSecretKey::generate();
