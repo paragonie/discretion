@@ -3,6 +3,7 @@ declare(strict_types=1);
 namespace ParagonIE\Discretion;
 
 use ParagonIE\ConstantTime\Base64UrlSafe;
+use ParagonIE\Discretion\Data\HiddenString;
 use ParagonIE\Discretion\Exception\FilesystemException;
 use ParagonIE\EasyDB\EasyDB;
 use ParagonIE\Sapient\Adapter\Slim;
@@ -22,6 +23,9 @@ class Discretion
 
     /** @var array $settings */
     protected static $settings;
+
+    /** @var HiddenString $localEncryptionKey */
+    protected static $localEncryptionKey;
 
     /** @var SigningSecretKey $signingKey */
     protected static $signingKey;
@@ -119,6 +123,29 @@ class Discretion
     }
 
     /**
+     * Get the local encryption key.
+     *
+     * @return HiddenString
+     * @throws FilesystemException
+     */
+    public static function getLocalEncryptionKey(): HiddenString
+    {
+        if (self::$localEncryptionKey) {
+            return self::$localEncryptionKey;
+        }
+
+        // Load the signing key:
+        $keyFile = \file_get_contents(DISCRETION_APP_ROOT . '/local/encryption.key');
+        if (!\is_string($keyFile)) {
+            throw new FilesystemException('Could not load key file');
+        }
+        self::$localEncryptionKey = new HiddenString(
+            Base64UrlSafe::decode($keyFile)
+        );
+        return self::$localEncryptionKey;
+    }
+
+    /**
      * This gets the server's signing key.
      *
      * We should audit all calls to this method.
@@ -137,9 +164,10 @@ class Discretion
         if (!\is_string($keyFile)) {
             throw new FilesystemException('Could not load key file');
         }
-        return new SigningSecretKey(
+        self::$signingKey = new SigningSecretKey(
             Base64UrlSafe::decode($keyFile)
         );
+        return self::$signingKey;
     }
 
     /**

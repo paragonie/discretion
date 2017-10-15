@@ -13,6 +13,12 @@ $signingKey = \ParagonIE\Sapient\CryptographyKeys\SigningSecretKey::generate();
     $signingKey->getString()
 );
 
+// Store the local encryption key:
+\file_put_contents(
+    $root . '/local/encryption.key',
+    \ParagonIE\ConstantTime\Base64UrlSafe::encode(\random_bytes(32))
+);
+
 // Write the default settings to the local settings file.
 $localSettings = [
     'database' => [

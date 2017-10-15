@@ -6,6 +6,7 @@ CREATE TABLE IF NOT EXISTS discretion_users (
     email     TEXT,
     fullname  TEXT,
     chronicle TEXT,
+    active    BOOLEAN DEFAULT FALSE,
     created   TIMESTAMP,
     modified  TIMESTAMP
 );
