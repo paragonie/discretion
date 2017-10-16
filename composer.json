@@ -3,7 +3,7 @@
     "description": "On-demand and reusable contact forms that only send GnuPG-encrypted messages to your inbox. Built with Slim Framework.",
     "keywords": ["GnuPG", "GPG", "email", "contact form", "contact", "mailer", "microservice", "Slim3"],
     "homepage": "http://github.com/paragonie/discretion",
-    "license": "MIT",
+    "license": "ISC",
     "authors": [
         {
             "name": "Paragon Initiative Enterprises",
