@@ -3,6 +3,12 @@ if (!\defined('DISCRETION_APP_ROOT')) {
     \define('DISCRETION_APP_ROOT', \dirname(__DIR__));
 }
 
+$cspDefault = [
+    'allow' => [],
+    'self' => true,
+    'data' => false
+];
+
 return [
     'settings' => [
         'displayErrorDetails' => true, // set to false in production
@@ -22,6 +28,41 @@ return [
                 'autoescape' => true
             ]
         ],
+
+        // Default configuration for Content-Security-Policy headers.
+        'csp-builder' => json_encode([
+            'child-src' => $cspDefault,
+            'connect-src' => $cspDefault,
+            'font-src' => $cspDefault,
+            'form-action' => $cspDefault,
+            'frame-ancestors' => $cspDefault,
+            'img-src' => [
+                'allow' => ['*'],
+                'self' => true,
+                'data' => true
+            ],
+            'media-src' => $cspDefault,
+            'object-src' => [
+                'allow' => [],
+                'self' => false,
+                'data' => false
+            ],
+            'plugin-types' => [
+                'allow' => [
+                    'application/javascript'
+                ]
+            ],
+            'script-src' => [
+                'allow' => [],
+                'unsafe-inline' => false,
+                'unsafe-eval' => false
+            ],
+            'style-src' => [
+                'allow' => [],
+                'unsafe-inline' => false
+            ],
+            'upgrade-insecure-requests' => true
+        ]),
 
         // Monolog settings
         'logger' => [

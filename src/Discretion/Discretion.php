@@ -3,6 +3,7 @@ declare(strict_types=1);
 namespace ParagonIE\Discretion;
 
 use ParagonIE\ConstantTime\Base64UrlSafe;
+use ParagonIE\CSPBuilder\CSPBuilder;
 use ParagonIE\Discretion\Data\HiddenString;
 use ParagonIE\Discretion\Exception\FilesystemException;
 use ParagonIE\EasyDB\EasyDB;
@@ -18,6 +19,9 @@ use Slim\Http\Response;
  */
 class Discretion
 {
+    /** @var CSPBuilder $cspBuilder */
+    protected static $cspBuilder;
+
     /** @var EasyDB $easyDb */
     protected static $easyDb;
 
@@ -60,6 +64,14 @@ class Discretion
     }
 
     /**
+     * @return CSPBuilder
+     */
+    public static function getCSPBuilder(): CSPBuilder
+    {
+        return self::$cspBuilder;
+    }
+
+    /**
      * Get the EasyDB object (used for database queries)
      *
      * @return EasyDB
@@ -82,6 +94,21 @@ class Discretion
             return $value ? 1 : 0;
         }
         return !empty($value);
+    }
+
+    /**
+     * Default HTTP headers. Doesn't include the Content-Security-Policy header.
+     *
+     * @return array
+     */
+    public static function getDefaultHeaders(): array
+    {
+        return [
+            'Content-Type' => 'text/html; charset=UTF-8',
+            'X-Content-Type-Options' => 'nosniff',
+            'X-Frame-Options' => 'SAMEORIGIN',
+            'X-XSS-Protection' => '1; mode=block'
+        ];
     }
 
     /**
@@ -187,6 +214,16 @@ class Discretion
     }
 
     /**
+     * @param CSPBuilder $CSPBuilder
+     * @return CSPBuilder
+     */
+    public static function setCSPBuilder(CSPBuilder $CSPBuilder): CSPBuilder
+    {
+        self::$cspBuilder = $CSPBuilder;
+        return self::$cspBuilder;
+    }
+
+    /**
      * Store the database object in the Chronicle class.
      *
      * @param EasyDB $db
@@ -224,16 +261,18 @@ class Discretion
         int $status = 200
     ): Response {
         if (empty($headers)) {
-            $headers = [
-                'Content-Type' => 'text/html; charset=UTF-8'
-            ];
+            $headers = static::getDefaultHeaders();
         }
-        return new Response(
-            $status,
-            new Headers($headers),
-            (new Slim())->stringToStream(
-                static::getTwig()->render($template, $args)
+        /** @var Response $response */
+        $response = self::$cspBuilder->injectCSPHeader(
+            new Response(
+                $status,
+                new Headers($headers),
+                (new Slim())->stringToStream(
+                    static::getTwig()->render($template, $args)
+                )
             )
         );
+        return $response;
     }
 }
