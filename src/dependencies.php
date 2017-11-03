@@ -26,6 +26,19 @@ $container['view'] =
         return \ParagonIE\Discretion\Discretion::getTwig();
     };
 
+$cspBuilder = \ParagonIE\CSPBuilder\CSPBuilder::fromData(
+    $container->get('settings')['csp-builder']
+);
+\ParagonIE\Discretion\Discretion::setCSPBuilder($cspBuilder);
+$container['csp'] =
+    /**
+     * @param \Slim\Container $c
+     * @return \ParagonIE\CSPBuilder\CSPBuilder
+     */
+    function (\Slim\Container $c) {
+        return \ParagonIE\Discretion\Discretion::getCSPBuilder();
+    };
+
 $container['logger'] =
     /**
      * @param \Slim\Container $c

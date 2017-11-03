@@ -21,7 +21,7 @@ try {
     /* Error here. Don't leak passwords. */
     \http_response_code(500);
     \header('Content-Type: application/json');
-    echo \json_encode([
+    echo (string) \json_encode([
         'status' => 'ERROR',
         'message' => 'Could not connect to the database.'
     ], JSON_PRETTY_PRINT);
