@@ -1,0 +1,79 @@
+
+html {
+    position: relative;
+    min-height: 100%;
+}
+body {
+    /* Margin bottom by footer height */
+    margin-bottom: 60px;
+}
+body > .container {
+    padding-top: 60px;
+}
+.footer {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    /* Set the fixed height of the footer here */
+    height: 60px;
+    line-height: 60px; /* Vertically center the text there */
+    color: #333;
+    background-color: #eee;
+    padding-left: 1ex;
+    padding-right: 1ex;
+    text-align: center;
+}
+.yes {
+    color: #0a0;
+    font-size: 130%;
+    text-shadow: rgba(0, 0, 0, 0.75) 1px 1px 1px !important;
+}
+.no {
+    color: #c00;
+    font-size: 110%;
+    text-shadow: rgba(0, 0, 0, 0.5) 1px 1px 1px !important;
+}
+.inblock {
+    display: inline-block;
+}
+.navbar {
+    background-color: #333;
+    background-image: -moz-linear-gradient(top, #2b2b2b, #111111);
+    background-image: linear-gradient(top, #2b2b2b, #111111);
+}
+.footer {
+    background-color: #333;
+    background-image: -webkit-linear-gradient(top, #2b2b2b, #111111);
+    background-image:    -moz-linear-gradient(top, #2b2b2b, #111111);
+    background-image:      -o-linear-gradient(top, #2b2b2b, #111111);
+    background-image:         linear-gradient(top, #2b2b2b, #111111);
+    color: #eee;
+}
+.footer a {
+    color: gold;
+}
+.footer a:hover {
+    color: #fff1cc;
+}
+
+.bold {
+    font-weight: bold;
+}
+.success {
+    color: #060;
+}
+.failure {
+    color: #700;
+}
+.min-width {
+    white-space: nowrap;
+    width: 1px;
+}
+.table-min-width {
+    white-space: nowrap;
+    width: 1px;
+}
+#qrcode {
+    display: block;
+    height: 256px;
+}

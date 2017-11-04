@@ -3,6 +3,7 @@ declare(strict_types=1);
 namespace ParagonIE\Discretion;
 
 use ParagonIE\ConstantTime\Base64UrlSafe;
+use ParagonIE\Discretion\Exception\DatabaseException;
 use ParagonIE\Discretion\Exception\RecordNotFound;
 use ParagonIE\Discretion\Policies\Unique;
 
@@ -103,6 +104,18 @@ abstract class Struct
                 static::$runtimeCacheKey
             )
         );
+    }
+
+    /**
+     * @return int
+     * @throws DatabaseException
+     */
+    public function id(): int
+    {
+        if (!$this->id) {
+            throw new DatabaseException('Record does not have a primary key. It may have not been created yet.');
+        }
+        return $this->id;
     }
 
     /**

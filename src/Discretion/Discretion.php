@@ -2,6 +2,7 @@
 declare(strict_types=1);
 namespace ParagonIE\Discretion;
 
+use ParagonIE\AntiCSRF\AntiCSRF;
 use ParagonIE\ConstantTime\Base64UrlSafe;
 use ParagonIE\CSPBuilder\CSPBuilder;
 use ParagonIE\Discretion\Data\HiddenString;
@@ -19,6 +20,9 @@ use Slim\Http\Response;
  */
 class Discretion
 {
+    /** @var AntiCSRF $antiCSRF */
+    protected static $antiCSRF;
+
     /** @var CSPBuilder $cspBuilder */
     protected static $cspBuilder;
 
@@ -45,8 +49,11 @@ class Discretion
      * @param int $status
      * @return Response
      */
-    public static function createNormalResponse(string $body = '', array $headers = [], int $status = 200): Response
-    {
+    public static function createNormalResponse(
+        string $body = '',
+        array $headers = [],
+        int $status = 200
+    ): Response {
         return new Response(
             $status,
             new Headers($headers),
@@ -61,6 +68,35 @@ class Discretion
     public static function decorateClassName($class = '')
     {
         return 'Object (' . \trim($class, '\\') . ')';
+    }
+
+    /**
+     * Generic error message responder.
+     *
+     * @param string $errorMessage
+     * @param int $statusCode
+     * @param array $headers
+     * @return Response
+     */
+    public static function errorResponse(
+        string $errorMessage = '',
+        int $statusCode = 500,
+        array $headers = []
+    ): Response {
+        return Discretion::view(
+            'error.twig',
+            ['error' => $errorMessage],
+            $headers + static::getDefaultHeaders(),
+            $statusCode
+        );
+    }
+
+    /**
+     * @return AntiCSRF
+     */
+    public static function getAntiCSRF(): AntiCSRF
+    {
+        return self::$antiCSRF;
     }
 
     /**
@@ -211,6 +247,16 @@ class Discretion
     public static function getTwig(): \Twig_Environment
     {
         return self::$twig;
+    }
+
+    /**
+     * @param AntiCSRF $antiCSRF
+     * @return AntiCSRF
+     */
+    public static function setAntiCSRF(AntiCSRF $antiCSRF): AntiCSRF
+    {
+        self::$antiCSRF = $antiCSRF;
+        return self::$antiCSRF;
     }
 
     /**

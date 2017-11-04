@@ -2,18 +2,26 @@
 declare(strict_types=1);
 namespace ParagonIE\Discretion\Handlers;
 
+
+use Kelunik\TwoFactor\Oath;
+use ParagonIE\Discretion\Data\HiddenString;
 use ParagonIE\Discretion\Discretion;
+use ParagonIE\Discretion\Exception\SecurityException;
 use ParagonIE\Discretion\HandlerInterface;
+use ParagonIE\Discretion\SimpleCrypto;
+use ParagonIE\EasyDB\EasyDB;
 use Psr\Http\Message\{
     RequestInterface,
     ResponseInterface
 };
+use Slim\Http\Request;
+use Slim\Http\Response;
 
 /**
- * Class Index
+ * Class Login
  * @package ParagonIE\Discretion\Handlers
  */
-class Index implements HandlerInterface
+class Login implements HandlerInterface
 {
     /**
      * @param RequestInterface $request
@@ -26,6 +34,8 @@ class Index implements HandlerInterface
         ResponseInterface $response,
         array $args = []
     ): ResponseInterface {
-        return Discretion::view('index.twig');
+        return Discretion::view(
+            'login.twig'
+        );
     }
 }

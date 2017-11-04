@@ -47,21 +47,32 @@ return [
                 'self' => false,
                 'data' => false
             ],
+            /*
             'plugin-types' => [
                 'allow' => [
                     'application/javascript'
                 ]
             ],
+            */
             'script-src' => [
-                'allow' => [],
+                'allow' => [
+                    'https://cdnjs.cloudflare.com/',
+                    'https://code.jquery.com',
+                    'https://maxcdn.bootstrapcdn.com/',
+                ],
+                'self' => true,
+                'data' => false,
                 'unsafe-inline' => false,
                 'unsafe-eval' => false
             ],
             'style-src' => [
-                'allow' => [],
+                'allow' => [
+                    'https://maxcdn.bootstrapcdn.com/'
+                ],
+                'self' => true,
                 'unsafe-inline' => false
             ],
-            'upgrade-insecure-requests' => true
+            'upgrade-insecure-requests' => false
         ]),
 
         // Monolog settings
