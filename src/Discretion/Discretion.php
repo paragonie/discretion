@@ -343,7 +343,7 @@ class Discretion
      * Set a twig variable.
      *
      * @param string $key
-     * @param $value
+     * @param mixed $value
      * @return void
      */
     public static function setTwigVar(string $key, $value)
