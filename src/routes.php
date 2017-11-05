@@ -10,6 +10,7 @@ use ParagonIE\Discretion\Handlers\{
     Register
 };
 use ParagonIE\Discretion\Middleware\{
+    HTTPPost,
     UserAuthentication
 };
 use Slim\App;
@@ -27,7 +28,7 @@ $app->group('/manage',
     }
 )->add(UserAuthentication::class);
 
-$app->any('/register', Register::class);
-$app->any('/login',    Login::class);
+$app->any('/register', Register::class)->add(HTTPPost::class);
+$app->any('/login',    Login::class)->add(HTTPPost::class);
 $app->get('/', Index::class);
 $app->get('', Index::class);

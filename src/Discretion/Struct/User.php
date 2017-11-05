@@ -94,6 +94,17 @@ class User extends Struct implements Unique
     }
 
     /**
+     * @return HiddenString
+     */
+    public function get2FASecret(): HiddenString
+    {
+        return SimpleCrypto::decrypt(
+            $this->twoFactorSecret,
+            Discretion::getLocalEncryptionKey()
+        );
+    }
+
+    /**
      * @return bool
      */
     public function isActive(): bool

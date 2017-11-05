@@ -2,4 +2,26 @@
 
 {% block main %}
     <h2>Login to Discretion</h2>
+
+    <form method="post">
+        <div class="form-group">
+            <label for="username">Username</label>
+            <input type="text" name="username" class="form-control" id="username" required="required" />
+        </div>
+
+        <div class="form-group">
+            <label for="passphrase">Passphrase</label>
+            <input type="password" name="passphrase" class="form-control" id="passphrase" required="required" />
+        </div>
+
+        <div class="form-group">
+            <label for="twoFactor">Two-Factor Authentication Code:</label>
+            <input type="text" name="twoFactor" class="form-control" id="twoFactor" placeholder="000000" maxlength="6" pattern="^[0-9]{6}$" required="required" />
+        </div>
+        <div class="form-group">
+            <button type="submit" class="btn btn-primary bold">Login</button>
+            <hr />
+            Don't have an account? <a href="/register">Create one</a>.
+        </div>
+    </form>
 {% endblock %}

@@ -7,9 +7,7 @@ use ParagonIE\Discretion\Data\HiddenString;
 use ParagonIE\Discretion\Discretion;
 use ParagonIE\Discretion\Exception\SecurityException;
 use ParagonIE\Discretion\HandlerInterface;
-use ParagonIE\Discretion\SimpleCrypto;
 use ParagonIE\Discretion\Struct\User;
-use ParagonIE\EasyDB\EasyDB;
 use Psr\Http\Message\{
     RequestInterface,
     ResponseInterface
@@ -34,20 +32,15 @@ class Register implements HandlerInterface
         ResponseInterface $response,
         array $args = []
     ): ResponseInterface {
-        $error = '';
         if ($request instanceof Request) {
             if ($request->getAttribute('authenticated')) {
-                return Discretion::errorResponse(
-                    'You are already logged in.',
-                    301,
-                    ['Location' => '/manage']
-                );
+                return Discretion::redirect('/manage');
             }
             if ($request->isPost()) {
                 try {
                     return $this->processRegistrationRequest($request);
                 } catch (SecurityException $ex) {
-                    $error = $ex->getMessage();
+                    Discretion::setTwigVar('error', $ex->getMessage());
                     // No. Fall through.
                 }
             }
@@ -61,7 +54,6 @@ class Register implements HandlerInterface
         return Discretion::view(
             'register.twig',
             [
-                'error' => $error,
                 'registration' => $_SESSION['registration'],
                 'qrcode' => (new Oath())->getUri(
                     (string) $_SESSION['registration']['twoFactorSecret'],
@@ -160,10 +152,6 @@ class Register implements HandlerInterface
         \session_regenerate_id(true);
         $_SESSION['userid'] = $user->id();
 
-        return Discretion::createNormalResponse(
-            'Account succesfully created. Redirecting to the control panel.',
-            ['Location' => '/manage'],
-            301
-        );
+        return Discretion::redirect('/manage');
     }
 }

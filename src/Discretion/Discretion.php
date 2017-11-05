@@ -7,6 +7,7 @@ use ParagonIE\ConstantTime\Base64UrlSafe;
 use ParagonIE\CSPBuilder\CSPBuilder;
 use ParagonIE\Discretion\Data\HiddenString;
 use ParagonIE\Discretion\Exception\FilesystemException;
+use ParagonIE\Discretion\Exception\RecordNotFound;
 use ParagonIE\EasyDB\EasyDB;
 use ParagonIE\Sapient\Adapter\Slim;
 use ParagonIE\Sapient\CryptographyKeys\SigningSecretKey;
@@ -40,6 +41,9 @@ class Discretion
 
     /** @var \Twig_Environment $twig */
     protected static $twig;
+
+    /** @var array $twigVars */
+    protected static $twigVars = [];
 
     /**
      * Create a generic HTTP response, unsigned.
@@ -250,6 +254,50 @@ class Discretion
     }
 
     /**
+     * Returns a value stored in the twig variables cache, if it exists.
+     *
+     * @param string $key
+     * @return mixed
+     * @throws RecordNotFound
+     */
+    public static function getTwigVar(string $key)
+    {
+        if (\array_key_exists($key, self::$twigVars)) {
+            return self::$twigVars[$key];
+        }
+        throw new RecordNotFound('Could not find twig variable');
+    }
+
+    /**
+     * Create a 301 redirect to a new destination.
+     *
+     * @param string $path
+     * @param bool $allowRemote
+     * @return Response
+     */
+    public static function redirect(
+        string $path,
+        bool $allowRemote = false
+    ): Response {
+        $headers = static::getDefaultHeaders();
+
+        if (!$allowRemote && \strpos($path, '://') !== false) {
+            // Fail closed:
+            $path = '/';
+        }
+
+        $headers['Location'] = $path;
+        /** @var Response $response */
+        $response = self::$cspBuilder->injectCSPHeader(
+            new Response(
+                301,
+                new Headers($headers)
+            )
+        );
+        return $response;
+    }
+
+    /**
      * @param AntiCSRF $antiCSRF
      * @return AntiCSRF
      */
@@ -292,6 +340,18 @@ class Discretion
     }
 
     /**
+     * Set a twig variable.
+     *
+     * @param string $key
+     * @param $value
+     * @return void
+     */
+    public static function setTwigVar(string $key, $value)
+    {
+        self::$twigVars[$key] = $value;
+    }
+
+    /**
      * Quick shortcut method for generating an HTML response from a template.
      *
      * @param string $template
@@ -315,7 +375,10 @@ class Discretion
                 $status,
                 new Headers($headers),
                 (new Slim())->stringToStream(
-                    static::getTwig()->render($template, $args)
+                    static::getTwig()->render(
+                        $template,
+                        $args + self::$twigVars
+                    )
                 )
             )
         );

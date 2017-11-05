@@ -46,20 +46,22 @@ class HTTPPost implements MiddlewareInterface
         ResponseInterface $response,
         callable $next
     ): ResponseInterface {
-        try {
-            if ($request instanceof Request) {
-                $this->assertCSRFPassed();
-                foreach (static::PROPERTIES_TO_SET as $prop) {
-                    $request = $request->withAttribute($prop, true);
+        if ($request instanceof Request) {
+            if ($request->isPost()) {
+                try {
+                    $this->assertCSRFPassed();
+                    foreach (static::PROPERTIES_TO_SET as $prop) {
+                        $request = $request->withAttribute($prop, true);
+                    }
+                } catch (SecurityException $ex) {
+                    return Discretion::errorResponse(
+                        $ex->getMessage(),
+                        403
+                    );
+                } catch (\Throwable $ex) {
+                    return Discretion::errorResponse('An unknown error has occurred.');
                 }
             }
-        } catch (SecurityException $ex) {
-            return Discretion::errorResponse(
-                $ex->getMessage(),
-                403
-            );
-        } catch (\Throwable $ex) {
-            return Discretion::errorResponse('An unknown error has occurred.');
         }
         return $next($request, $response);
     }

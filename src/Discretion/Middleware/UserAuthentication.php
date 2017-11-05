@@ -52,11 +52,7 @@ class UserAuthentication implements MiddlewareInterface
                 }
             }
         } catch (SecurityException $ex) {
-            return Discretion::errorResponse(
-                $ex->getMessage(),
-                301,
-                ['Location' => '/login']
-            );
+            return Discretion::redirect('/login');
         } catch (\Throwable $ex) {
             return Discretion::errorResponse('An unknown error has occurred.');
         }
