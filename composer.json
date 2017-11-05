@@ -16,6 +16,7 @@
         "bacon/bacon-qr-code": "^1",
         "ezyang/htmlpurifier": "^4",
         "kelunik/two-factor": "^1",
+        "paragonie/anti-csrf": "^2",
         "paragonie/constant_time_encoding": "^2",
         "paragonie/easydb": "^2",
         "paragonie/csp-builder": "^2",

@@ -1,0 +1,66 @@
+{% extends "base.twig" %}
+
+{% block main %}
+    <h2>Create a Discretion Account</h2>
+
+    <form method="post">
+        <div class="form-group">
+            <label for="username">Username</label>
+            <input type="text" name="username" class="form-control" id="username" required="required" />
+        </div>
+
+        <div class="form-group">
+            <label for="emailAddress">Email Address</label>
+            <input type="email" name="email" class="form-control" id="emailAddress" placeholder="Email address" required="required" />
+        </div>
+
+        <div class="form-group">
+            <label for="passphrase">Passphrase</label>
+            <input type="password" name="passphrase" class="form-control" id="passphrase" aria-describedby="passphraseHelp" required="required" pattern="^.{16,}$" />
+            <small id="passphraseHelp" class="form-text text-muted">
+                Passphrases must be <strong>at least 16 characters long</strong>.
+                We recommend using <a href="https://www.keepassx.org">a password manager</a>.
+            </small>
+        </div>
+
+        <div class="form-group">
+            <label for="passphrase2">Confirm Passphrase</label>
+            <input type="password" name="passphrase" class="form-control" id="passphrase2" required="required" pattern="^.{16,}$" />
+        </div>
+
+        <fieldset>
+            <legend>Optional Information</legend>
+            <div class="form-group">
+                <label for="realName">Real Name</label>
+                <input type="text" name="realName" class="form-control" id="realName" placeholder="Jane Doe" />
+            </div>
+        </fieldset>
+
+        <fieldset>
+            <legend>Two-Factor Authentication</legend>
+            <div id="qrcode-wrapper" class="text-center" data-placeholder="{{ qrcode|e('html') }}" aria-describedby="twoFactorHelp" >
+                <div id="qrcode">Waiting to generate QR code.</div>
+            </div>
+            <small id="twoFactorHelp" class="form-text text-muted">
+                Please scan this QR code with your two-factor authentication app and enter two consecutive
+                values below to complete your registration:
+            </small>
+
+            <div class="form-group">
+                <label for="twoFactorFirst">First code:</label>
+                <input type="text" name="twoFactor1" class="form-control" id="twoFactorFirst" placeholder="000000" maxlength="6" pattern="^[0-9]{6}$" required="required" />
+            </div>
+            <div class="form-group">
+                <label for="twoFactorSecond">Second code:</label>
+                <input type="text" name="twoFactor2" class="form-control" id="twoFactorSecond" placeholder="000000" maxlength="6" pattern="^[0-9]{6}$" required="required" />
+            </div>
+        </fieldset>
+        <button type="submit" class="btn btn-primary">Create Account</button>
+    </form>
+    <hr />
+{% endblock %}
+
+{% block extra_js %}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.qrcode/1.0/jquery.qrcode.min.js"></script>
+    <script src="/static/js/register.js"></script>
+{% endblock %}

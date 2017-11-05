@@ -2,10 +2,12 @@
 declare(strict_types=1);
 namespace ParagonIE\Discretion;
 
+use ParagonIE\AntiCSRF\AntiCSRF;
 use ParagonIE\ConstantTime\Base64UrlSafe;
 use ParagonIE\CSPBuilder\CSPBuilder;
 use ParagonIE\Discretion\Data\HiddenString;
 use ParagonIE\Discretion\Exception\FilesystemException;
+use ParagonIE\Discretion\Exception\RecordNotFound;
 use ParagonIE\EasyDB\EasyDB;
 use ParagonIE\Sapient\Adapter\Slim;
 use ParagonIE\Sapient\CryptographyKeys\SigningSecretKey;
@@ -19,6 +21,9 @@ use Slim\Http\Response;
  */
 class Discretion
 {
+    /** @var AntiCSRF $antiCSRF */
+    protected static $antiCSRF;
+
     /** @var CSPBuilder $cspBuilder */
     protected static $cspBuilder;
 
@@ -37,6 +42,9 @@ class Discretion
     /** @var \Twig_Environment $twig */
     protected static $twig;
 
+    /** @var array $twigVars */
+    protected static $twigVars = [];
+
     /**
      * Create a generic HTTP response, unsigned.
      *
@@ -45,8 +53,11 @@ class Discretion
      * @param int $status
      * @return Response
      */
-    public static function createNormalResponse(string $body = '', array $headers = [], int $status = 200): Response
-    {
+    public static function createNormalResponse(
+        string $body = '',
+        array $headers = [],
+        int $status = 200
+    ): Response {
         return new Response(
             $status,
             new Headers($headers),
@@ -61,6 +72,35 @@ class Discretion
     public static function decorateClassName($class = '')
     {
         return 'Object (' . \trim($class, '\\') . ')';
+    }
+
+    /**
+     * Generic error message responder.
+     *
+     * @param string $errorMessage
+     * @param int $statusCode
+     * @param array $headers
+     * @return Response
+     */
+    public static function errorResponse(
+        string $errorMessage = '',
+        int $statusCode = 500,
+        array $headers = []
+    ): Response {
+        return Discretion::view(
+            'error.twig',
+            ['error' => $errorMessage],
+            $headers + static::getDefaultHeaders(),
+            $statusCode
+        );
+    }
+
+    /**
+     * @return AntiCSRF
+     */
+    public static function getAntiCSRF(): AntiCSRF
+    {
+        return self::$antiCSRF;
     }
 
     /**
@@ -214,6 +254,60 @@ class Discretion
     }
 
     /**
+     * Returns a value stored in the twig variables cache, if it exists.
+     *
+     * @param string $key
+     * @return mixed
+     * @throws RecordNotFound
+     */
+    public static function getTwigVar(string $key)
+    {
+        if (\array_key_exists($key, self::$twigVars)) {
+            return self::$twigVars[$key];
+        }
+        throw new RecordNotFound('Could not find twig variable');
+    }
+
+    /**
+     * Create a 301 redirect to a new destination.
+     *
+     * @param string $path
+     * @param bool $allowRemote
+     * @return Response
+     */
+    public static function redirect(
+        string $path,
+        bool $allowRemote = false
+    ): Response {
+        $headers = static::getDefaultHeaders();
+
+        if (!$allowRemote && \strpos($path, '://') !== false) {
+            // Fail closed:
+            $path = '/';
+        }
+
+        $headers['Location'] = $path;
+        /** @var Response $response */
+        $response = self::$cspBuilder->injectCSPHeader(
+            new Response(
+                301,
+                new Headers($headers)
+            )
+        );
+        return $response;
+    }
+
+    /**
+     * @param AntiCSRF $antiCSRF
+     * @return AntiCSRF
+     */
+    public static function setAntiCSRF(AntiCSRF $antiCSRF): AntiCSRF
+    {
+        self::$antiCSRF = $antiCSRF;
+        return self::$antiCSRF;
+    }
+
+    /**
      * @param CSPBuilder $CSPBuilder
      * @return CSPBuilder
      */
@@ -246,6 +340,18 @@ class Discretion
     }
 
     /**
+     * Set a twig variable.
+     *
+     * @param string $key
+     * @param mixed $value
+     * @return void
+     */
+    public static function setTwigVar(string $key, $value)
+    {
+        self::$twigVars[$key] = $value;
+    }
+
+    /**
      * Quick shortcut method for generating an HTML response from a template.
      *
      * @param string $template
@@ -269,7 +375,10 @@ class Discretion
                 $status,
                 new Headers($headers),
                 (new Slim())->stringToStream(
-                    static::getTwig()->render($template, $args)
+                    static::getTwig()->render(
+                        $template,
+                        $args + self::$twigVars
+                    )
                 )
             )
         );

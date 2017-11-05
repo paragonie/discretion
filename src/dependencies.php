@@ -1,53 +1,84 @@
 <?php
+use Slim\{
+    App,
+    Container
+};
+use ParagonIE\AntiCSRF\AntiCSRF;
+use ParagonIE\CSPBuilder\CSPBuilder;
+use ParagonIE\Discretion\Discretion;
 
-use Slim\Container;
 // DIC configuration
 
-/** @var \Slim\App $app */
+/** @var App $app */
 if (!isset($app)) {
-    $app = new \Slim\App();
+    $app = new App();
 }
-/** @var \Slim\Container $container */
+/** @var Container $container */
 $container = $app->getContainer();
+/** @var array $settings */
+$settings = $container->get('settings');
 
+if (isset($settings['anti-csrf'])) {
+    $antiCsrf = new AntiCSRF(...$settings['anti-csrf']);
+} else {
+    $antiCsrf = new AntiCSRF();
+}
+\ParagonIE\Discretion\Discretion::setAntiCSRF($antiCsrf);
 
-$settings = $container->get('settings')['twig'];
-$twigLoader = new \Twig_Loader_Filesystem($settings['paths']);
-\ParagonIE\Discretion\Discretion::setTwig(
-    new \Twig_Environment($twigLoader, $settings['settings'])
-);
+$cspBuilder = CSPBuilder::fromData($settings['csp-builder']);
+Discretion::setCSPBuilder($cspBuilder);
+
+$twigSettings = $settings['twig'];
+$twigLoader = new \Twig_Loader_Filesystem($twigSettings['paths']);
+Discretion::setTwig(new \Twig_Environment($twigLoader, $twigSettings['settings']));
 
 $container['view'] =
     /**
-     * @param \Slim\Container $c
+     * @param Container $c
      * @return Twig_Environment
      */
     function (\Slim\Container $c) {
-        return \ParagonIE\Discretion\Discretion::getTwig();
+        return Discretion::getTwig();
     };
 
-$cspBuilder = \ParagonIE\CSPBuilder\CSPBuilder::fromData(
-    $container->get('settings')['csp-builder']
-);
-\ParagonIE\Discretion\Discretion::setCSPBuilder($cspBuilder);
+$container['anticsrf'] =
+    /**
+     * @param Container $c
+     * @return AntiCSRF
+     */
+    function (Container $c): AntiCSRF {
+        return Discretion::getAntiCSRF();
+    };
+
 $container['csp'] =
     /**
-     * @param \Slim\Container $c
-     * @return \ParagonIE\CSPBuilder\CSPBuilder
+     * @param Container $c
+     * @return CSPBuilder
      */
-    function (\Slim\Container $c) {
-        return \ParagonIE\Discretion\Discretion::getCSPBuilder();
+    function (Container $c) {
+        return Discretion::getCSPBuilder();
     };
 
 $container['logger'] =
     /**
-     * @param \Slim\Container $c
+     * @param Container $c
      * @return \Monolog\Logger
      */
-    function (\Slim\Container $c) {
+    function (\Slim\Container $c): \Monolog\Logger {
         $settings = $c->get('settings')['logger'];
         $logger = new Monolog\Logger($settings['name']);
         $logger->pushProcessor(new Monolog\Processor\UidProcessor());
         $logger->pushHandler(new Monolog\Handler\StreamHandler($settings['path'], $settings['level']));
         return $logger;
     };
+
+$container['view'] =
+    /**
+     * @param Container $c
+     * @return Twig_Environment
+     */
+    function (\Slim\Container $c) {
+        return Discretion::getTwig();
+    };
+
+require_once 'twig.php';

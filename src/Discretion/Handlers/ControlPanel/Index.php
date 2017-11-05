@@ -1,6 +1,6 @@
 <?php
 declare(strict_types=1);
-namespace ParagonIE\Discretion\Handlers;
+namespace ParagonIE\Discretion\Handlers\ControlPanel;
 
 use ParagonIE\Discretion\Discretion;
 use ParagonIE\Discretion\HandlerInterface;
@@ -11,7 +11,7 @@ use Psr\Http\Message\{
 
 /**
  * Class Index
- * @package ParagonIE\Discretion\Handlers
+ * @package ParagonIE\Discretion\Handlers\ControlPanel
  */
 class Index implements HandlerInterface
 {
@@ -26,6 +26,6 @@ class Index implements HandlerInterface
         ResponseInterface $response,
         array $args = []
     ): ResponseInterface {
-        return Discretion::view('index.twig');
+        return Discretion::view('control-panel/index.twig');
     }
 }
