@@ -12,8 +12,10 @@ use Psr\Http\Message\{
     RequestInterface,
     ResponseInterface
 };
-use Slim\Http\Request;
-use Slim\Http\Response;
+use Slim\Http\{
+    Request,
+    Response
+};
 
 /**
  * Class Index

@@ -3,8 +3,10 @@ declare(strict_types=1);
 namespace ParagonIE\Discretion\Middleware;
 
 use ParagonIE\Discretion\Discretion;
-use ParagonIE\Discretion\Exception\NotLoggedInException;
-use ParagonIE\Discretion\Exception\SecurityException;
+use ParagonIE\Discretion\Exception\{
+    NotLoggedInException,
+    SecurityException
+};
 use ParagonIE\Discretion\MiddlewareInterface;
 use Psr\Http\Message\{
     RequestInterface,

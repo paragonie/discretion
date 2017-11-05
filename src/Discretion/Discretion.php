@@ -6,14 +6,18 @@ use ParagonIE\AntiCSRF\AntiCSRF;
 use ParagonIE\ConstantTime\Base64UrlSafe;
 use ParagonIE\CSPBuilder\CSPBuilder;
 use ParagonIE\Discretion\Data\HiddenString;
-use ParagonIE\Discretion\Exception\FilesystemException;
-use ParagonIE\Discretion\Exception\RecordNotFound;
+use ParagonIE\Discretion\Exception\{
+    FilesystemException,
+    RecordNotFound
+};
 use ParagonIE\EasyDB\EasyDB;
 use ParagonIE\Sapient\Adapter\Slim;
 use ParagonIE\Sapient\CryptographyKeys\SigningSecretKey;
 use ParagonIE\Sapient\Sapient;
-use Slim\Http\Headers;
-use Slim\Http\Response;
+use Slim\Http\{
+    Headers,
+    Response
+};
 
 /**
  * Class Discretion
@@ -30,11 +34,11 @@ class Discretion
     /** @var EasyDB $easyDb */
     protected static $easyDb;
 
-    /** @var array $settings */
-    protected static $settings;
-
     /** @var HiddenString $localEncryptionKey */
     protected static $localEncryptionKey;
+
+    /** @var array $settings */
+    protected static $settings;
 
     /** @var SigningSecretKey $signingKey */
     protected static $signingKey;
@@ -182,14 +186,6 @@ class Discretion
     }
 
     /**
-     * @return Sapient
-     */
-    public static function getSapient(): Sapient
-    {
-        return new Sapient(new Slim());
-    }
-
-    /**
      * Get the local encryption key.
      *
      * @return HiddenString
@@ -210,6 +206,14 @@ class Discretion
             Base64UrlSafe::decode($keyFile)
         );
         return self::$localEncryptionKey;
+    }
+
+    /**
+     * @return Sapient
+     */
+    public static function getSapient(): Sapient
+    {
+        return new Sapient(new Slim());
     }
 
     /**

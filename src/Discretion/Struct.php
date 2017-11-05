@@ -3,8 +3,10 @@ declare(strict_types=1);
 namespace ParagonIE\Discretion;
 
 use ParagonIE\ConstantTime\Base64UrlSafe;
-use ParagonIE\Discretion\Exception\DatabaseException;
-use ParagonIE\Discretion\Exception\RecordNotFound;
+use ParagonIE\Discretion\Exception\{
+    DatabaseException,
+    RecordNotFound
+};
 use ParagonIE\Discretion\Policies\Unique;
 
 /**
@@ -45,8 +47,13 @@ abstract class Struct
         if (empty(static::TABLE_NAME) || empty(static::PRIMARY_KEY) || empty(static::DB_FIELD_NAMES)) {
             throw new \Error('Struct does not define necessary constants');
         }
-        $db = Discretion::getDatabase();
         $self = new static();
+        if ($self instanceof Unique) {
+            if (\array_key_exists($self->getCacheKey($id), self::$objectCache)) {
+                return self::$objectCache[$self->getCacheKey($id)];
+            }
+        }
+        $db = Discretion::getDatabase();
         $row = $db->row(
             "SELECT * FROM " .
                 $db->escapeIdentifier(static::TABLE_NAME) .
@@ -55,11 +62,6 @@ abstract class Struct
             " = ?",
             $id
         );
-        if ($self instanceof Unique) {
-            if (\array_key_exists($self->getCacheKey($id), self::$objectCache)) {
-                return self::$objectCache[$self->getCacheKey($id)];
-            }
-        }
         if (empty($row)) {
             throw new RecordNotFound(static::class . '::' . $id);
         }

@@ -2,21 +2,24 @@
 declare(strict_types=1);
 namespace ParagonIE\Discretion\Handlers;
 
-
 use Kelunik\TwoFactor\Oath;
 use ParagonIE\Discretion\Data\HiddenString;
 use ParagonIE\Discretion\Discretion;
-use ParagonIE\Discretion\Exception\DatabaseException;
-use ParagonIE\Discretion\Exception\RecordNotFound;
-use ParagonIE\Discretion\Exception\SecurityException;
+use ParagonIE\Discretion\Exception\{
+    DatabaseException,
+    RecordNotFound,
+    SecurityException
+};
 use ParagonIE\Discretion\HandlerInterface;
 use ParagonIE\Discretion\Struct\User;
 use Psr\Http\Message\{
     RequestInterface,
     ResponseInterface
 };
-use Slim\Http\Request;
-use Slim\Http\Response;
+use Slim\Http\{
+    Request,
+    Response
+};
 
 /**
  * Class Login
