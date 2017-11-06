@@ -2,8 +2,12 @@
 
 {% block main %}
     <h2>Create a Discretion Account</h2>
+    {% if error %}
+        <p>{{ error }}</p>
+    {% endif %}
 
     <form method="post">
+        {{ form_token() }}
         <div class="form-group">
             <label for="username">Username</label>
             <input type="text" name="username" class="form-control" id="username" required="required" />
@@ -25,7 +29,7 @@
 
         <div class="form-group">
             <label for="passphrase2">Confirm Passphrase</label>
-            <input type="password" name="passphrase" class="form-control" id="passphrase2" required="required" pattern="^.{16,}$" />
+            <input type="password" name="passphrase2" class="form-control" id="passphrase2" required="required" pattern="^.{16,}$" />
         </div>
 
         <fieldset>

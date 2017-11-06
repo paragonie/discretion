@@ -15,3 +15,5 @@ $twig->addFunction(
         }
     )
 );
+
+Discretion::setTwig($twig);

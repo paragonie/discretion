@@ -31,6 +31,7 @@ class User extends Struct implements Unique
         'fullname' => 'fullName',
         'chronicle' => 'chronicle'
     ];
+    const BOOLEAN_FIELDS = ['active'];
 
     /** @var bool $active */
     protected $active = false;

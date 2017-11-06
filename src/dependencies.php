@@ -18,10 +18,11 @@ $container = $app->getContainer();
 /** @var array $settings */
 $settings = $container->get('settings');
 
-if (isset($settings['anti-csrf'])) {
-    $antiCsrf = new AntiCSRF(...$settings['anti-csrf']);
-} else {
+try {
     $antiCsrf = new AntiCSRF();
+} catch (\Error $ex) {
+    $session = [];
+    $antiCsrf = new AntiCSRF($_POST, $session);
 }
 \ParagonIE\Discretion\Discretion::setAntiCSRF($antiCsrf);
 

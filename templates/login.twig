@@ -2,8 +2,12 @@
 
 {% block main %}
     <h2>Login to Discretion</h2>
+    {% if error %}
+        <p>{{ error }}</p>
+    {% endif %}
 
     <form method="post">
+        {{ form_token() }}
         <div class="form-group">
             <label for="username">Username</label>
             <input type="text" name="username" class="form-control" id="username" required="required" />

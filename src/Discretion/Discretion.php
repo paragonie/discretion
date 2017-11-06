@@ -130,12 +130,15 @@ class Discretion
      * Otherwise, TRUE/FALSE is fine.
      *
      * @param bool $value
-     * @return bool|int
+     * @return bool|int|string
      */
     public static function getDatabaseBoolean(bool $value)
     {
         if (self::$easyDb->getDriver() === 'sqlite') {
             return $value ? 1 : 0;
+        }
+        if (self::$easyDb->getDriver() === 'pgsql') {
+            return $value ? 't' : 'f';
         }
         return !empty($value);
     }

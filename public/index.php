@@ -9,9 +9,9 @@ if (PHP_SAPI == 'cli-server') {
     }
 }
 
-require \dirname(__DIR__) . '/cli-autoload.php';
+\session_start();
 
-session_start();
+require \dirname(__DIR__) . '/cli-autoload.php';
 
 // Register middleware
 require DISCRETION_APP_ROOT . '/src/middleware.php';

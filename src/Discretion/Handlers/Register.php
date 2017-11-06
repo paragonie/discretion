@@ -50,6 +50,7 @@ class Register implements HandlerInterface
         if (!isset($_SESSION['registration'])) {
             $_SESSION['registration'] = $this->initRegistration();
         }
+
         // We're allowing CDNJS for this page only:
         Discretion::getCSPBuilder()->addSource('script-src', 'https://cdnjs.cloudflare.com');
 
@@ -130,10 +131,13 @@ class Register implements HandlerInterface
         }
         $oath = new Oath();
         // Verify two sequential 2FA codes generated from our 2FA secret:
-        if (!$oath->verifyTotp($_SESSION['registration']['twoFactorSecret'], $post['twoFactor1'], 2, time())) {
+        if (\hash_equals($post['twoFactor1'], $post['twoFactor2'])) {
             throw new SecurityException('Incorrect two-factor authentication code.');
         }
-        if (!$oath->verifyTotp($_SESSION['registration']['twoFactorSecret'], $post['twoFactor2'], 2, time() - 30)) {
+        if (!$oath->verifyTotp($_SESSION['registration']['twoFactorSecret'], $post['twoFactor1'], 2)) {
+            throw new SecurityException('Incorrect two-factor authentication code.');
+        }
+        if (!$oath->verifyTotp($_SESSION['registration']['twoFactorSecret'], $post['twoFactor2'], 3)) {
             throw new SecurityException('Incorrect two-factor authentication code.');
         }
 

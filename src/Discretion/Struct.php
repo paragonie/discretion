@@ -18,6 +18,7 @@ abstract class Struct
     const TABLE_NAME = '';
     const PRIMARY_KEY = '';
     const DB_FIELD_NAMES = [];
+    const BOOLEAN_FIELDS = [];
 
     /** @var int $id */
     protected $id = 0;
@@ -145,7 +146,13 @@ abstract class Struct
                 // No
                 continue;
             }
-            $fields[$field] = $this->{$property};
+            if (\in_array($field, static::BOOLEAN_FIELDS)) {
+                $fields[$field] = Discretion::getDatabaseBoolean(
+                    !empty($this->{$property})
+                );
+            } else {
+                $fields[$field] = $this->{$property};
+            }
         }
         $this->id = (int) $db->insertGet(
             static::TABLE_NAME,
