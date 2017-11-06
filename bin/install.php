@@ -32,7 +32,8 @@ $localSettings = [
         'site-key' => ''
     ],
     // The maximum window of opportunity for replay attacks:
-    'signing-public-key' => $signingKey->getPublicKey()->getString()
+    'signing-public-key' => $signingKey->getPublicKey()->getString(),
+    'zxcvbn-min-strength' => 3
 ];
 
 \file_put_contents(

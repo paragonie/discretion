@@ -6,7 +6,7 @@
         <p>{{ error }}</p>
     {% endif %}
 
-    <form method="post">
+    <form method="post" id="registration-form" data-minpwstrength="{{ get_config("zxcvbn-min-strength")|default(3)|e('html_attr') }}">
         {{ form_token() }}
         <div class="form-group">
             <label for="username">Username</label>
@@ -25,11 +25,13 @@
                 Passphrases must be <strong>at least 16 characters long</strong>.
                 We recommend using <a href="https://www.keepassx.org">a password manager</a>.
             </small>
+            <p id="passphrase-extra" class="form-text errortxt"></p>
         </div>
 
         <div class="form-group">
             <label for="passphrase2">Confirm Passphrase</label>
             <input type="password" name="passphrase2" class="form-control" id="passphrase2" required="required" pattern="^.{16,}$" />
+            <p id="passphrase2-extra" class="form-text errortxt"></p>
         </div>
 
         <fieldset>
@@ -60,7 +62,7 @@
             </div>
         </fieldset>
         <div class="g-recaptcha" data-sitekey="{{ get_config('recaptcha')['site-key']|e('html_attr') }}"></div>
-        <button type="submit" class="btn btn-primary">Create Account</button>
+        <button type="submit" id="register-button" class="btn btn-primary">Create Account</button>
     </form>
     <hr />
 {% endblock %}
@@ -68,5 +70,6 @@
 {% block extra_js %}
     <script src='https://www.google.com/recaptcha/api.js'></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.qrcode/1.0/jquery.qrcode.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/zxcvbn/4.4.2/zxcvbn.js"></script>
     <script src="/static/js/register.js"></script>
 {% endblock %}
