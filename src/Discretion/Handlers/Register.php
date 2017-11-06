@@ -17,6 +17,7 @@ use Slim\Http\{
     Request,
     Response
 };
+use ZxcvbnPhp\Zxcvbn;
 
 /**
  * Class Index
@@ -147,6 +148,23 @@ class Register implements HandlerInterface
         if (!\hash_equals($post['passphrase'], $post['passphrase2'])) {
             throw new SecurityException('Passphrases do not match');
         }
+        $zxcvbn = new Zxcvbn();
+        $strength = $zxcvbn->passwordStrength($post['passphrase'],
+            [
+                $post['username'],
+                $post['fullName'],
+                $post['email']
+            ]
+        );
+
+        // Fail closed to a reasonably high value:
+        if (!isset($settings['zxcvbn-min-score'])) {
+            $settings['zxcvbn-min-score'] = 3;
+        }
+        if ($strength['score'] < $settings['zxcvbn-min-score']) {
+            throw new SecurityException('Passphrase strength is inadequate.');
+        }
+
         $oath = new Oath();
         // Verify two sequential 2FA codes generated from our 2FA secret:
         if (\hash_equals($post['twoFactor1'], $post['twoFactor2'])) {

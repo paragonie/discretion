@@ -14,6 +14,7 @@
     "require": {
         "php": "^7",
         "bacon/bacon-qr-code": "^1",
+        "bjeavons/zxcvbn-php": "^0.3",
         "ezyang/htmlpurifier": "^4",
         "kelunik/two-factor": "^1",
         "paragonie/anti-csrf": "^2",

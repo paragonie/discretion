@@ -77,3 +77,7 @@ body > .container {
     display: block;
     height: 256px;
 }
+.errortxt {
+    color: #800;
+    font-weight: bold;
+}
