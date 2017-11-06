@@ -59,12 +59,14 @@
                 <input type="text" name="twoFactor2" class="form-control" id="twoFactorSecond" placeholder="000000" maxlength="6" pattern="^[0-9]{6}$" required="required" />
             </div>
         </fieldset>
+        <div class="g-recaptcha" data-sitekey="{{ get_config('recaptcha')['site-key']|e('html_attr') }}"></div>
         <button type="submit" class="btn btn-primary">Create Account</button>
     </form>
     <hr />
 {% endblock %}
 
 {% block extra_js %}
+    <script src='https://www.google.com/recaptcha/api.js'></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.qrcode/1.0/jquery.qrcode.min.js"></script>
     <script src="/static/js/register.js"></script>
 {% endblock %}

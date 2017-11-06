@@ -15,5 +15,17 @@ $twig->addFunction(
         }
     )
 );
+$twig->addFunction(
+    new Twig_Function(
+        'get_config',
+        function (string $key = '') {
+            $settings = Discretion::getSettings();
+            if (isset($settings[$key])) {
+                return $settings[$key];
+            }
+            return null;
+        }
+    )
+);
 
 Discretion::setTwig($twig);

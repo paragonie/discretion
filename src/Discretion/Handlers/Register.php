@@ -12,6 +12,7 @@ use Psr\Http\Message\{
     RequestInterface,
     ResponseInterface
 };
+use ReCaptcha\ReCaptcha;
 use Slim\Http\{
     Request,
     Response
@@ -51,8 +52,15 @@ class Register implements HandlerInterface
             $_SESSION['registration'] = $this->initRegistration();
         }
 
-        // We're allowing CDNJS for this page only:
-        Discretion::getCSPBuilder()->addSource('script-src', 'https://cdnjs.cloudflare.com');
+        // We're allowing CDNJS and Google for this page only:
+        Discretion::getCSPBuilder()
+            ->setSelfAllowed('style-src', true)
+            ->setAllowUnsafeInline('style-src', true)
+            ->addSource('connect-src', 'https://www.google.com')
+            ->addSource('child-src', 'https://www.google.com')
+            ->addSource('script-src', 'https://cdnjs.cloudflare.com')
+            ->addSource('script-src', 'https://www.google.com')
+            ->addSource('script-src', 'https://www.gstatic.com');
 
         return Discretion::view(
             'register.twig',
@@ -113,6 +121,16 @@ class Register implements HandlerInterface
             || !\is_string($post['twoFactor2'])
         ) {
             throw new SecurityException('Invalid types');
+        }
+        $settings = Discretion::getSettings();
+        if (isset($settings['recaptcha']['secret-key'])) {
+            if (empty($post['g-recaptcha-response'])) {
+                throw new SecurityException('Please complete the CAPTCHA.');
+            }
+            $recaptcha = new ReCaptcha($settings['recaptcha']['secret-key']);
+            if (!$recaptcha->verify($post['g-recaptcha-response'], $_SERVER['REMOTE_ADDR'])) {
+                throw new SecurityException('Incorrect CAPTCHA response.');
+            }
         }
 
         // Ensure this is a valid email address.

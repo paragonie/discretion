@@ -337,6 +337,16 @@ class Discretion
     }
 
     /**
+     * @param array $settings
+     * @return array
+     */
+    public static function setSettings(array $settings = []): array
+    {
+        self::$settings = $settings;
+        return self::$settings;
+    }
+
+    /**
      * @param \Twig_Environment $twig
      * @return \Twig_Environment
      */

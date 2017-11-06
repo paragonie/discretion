@@ -21,6 +21,7 @@
         "paragonie/easydb": "^2",
         "paragonie/csp-builder": "^2",
         "paragonie/gpg-mailer": "^0|^1",
+        "paragonie/recaptcha": "^2.1",
         "paragonie/sapient": "^1",
         "paragonie/slim-sapient": "^1",
         "paragonie/sodium_compat": "^1.3",
