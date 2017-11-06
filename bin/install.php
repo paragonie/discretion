@@ -27,6 +27,10 @@ $localSettings = [
         'username' => 'charlie',
         'password' => 'correct horse battery staple'
     ],
+    'recaptcha' => [
+        'secret-key' => '',
+        'site-key' => ''
+    ],
     // The maximum window of opportunity for replay attacks:
     'signing-public-key' => $signingKey->getPublicKey()->getString()
 ];

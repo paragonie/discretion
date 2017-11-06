@@ -8,6 +8,8 @@ $settings = \json_decode(
     (string) \file_get_contents(DISCRETION_APP_ROOT . '/local/settings.json'),
     true
 );
+\ParagonIE\Discretion\Discretion::setSettings($settings);
+
 try {
     $db = \ParagonIE\EasyDB\Factory::create(
         $settings['database']['dsn'],
