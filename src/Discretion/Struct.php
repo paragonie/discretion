@@ -182,7 +182,13 @@ abstract class Struct
                 // No
                 continue;
             }
-            $fields[$field] = $this->{$property};
+            if (\in_array($field, static::BOOLEAN_FIELDS)) {
+                $fields[$field] = Discretion::getDatabaseBoolean(
+                    !empty($this->{$property})
+                );
+            } else {
+                $fields[$field] = $this->{$property};
+            }
         }
         $db->update(
             static::TABLE_NAME,
