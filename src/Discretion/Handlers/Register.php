@@ -139,14 +139,12 @@ class Register implements HandlerInterface
         if (!\is_string($email)) {
             throw new SecurityException('Invalid email address.');
         }
-
-        $db = Discretion::getDatabase();
-        /** @psalm-suppress InvalidArgument Trust me on this one, Psalm. */
-        if ($db->exists('SELECT count(*) FROM discretion_users WHERE username = ?', $post['username'])) {
-            throw new SecurityException('Username is already taken');
+        if (User::usernameIsTaken($post['username'])) {
+            throw new SecurityException('Username is already taken.');
         }
+
         if (!\hash_equals($post['passphrase'], $post['passphrase2'])) {
-            throw new SecurityException('Passphrases do not match');
+            throw new SecurityException('Passphrases do not match.');
         }
         $zxcvbn = new Zxcvbn();
         $strength = $zxcvbn->passwordStrength($post['passphrase'],

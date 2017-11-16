@@ -194,4 +194,17 @@ class User extends Struct implements Unique
         $this->username = $username;
         return $this;
     }
+
+    /**
+     * @param string $username
+     * @return bool
+     */
+    public static function usernameIsTaken(string $username): bool
+    {
+        /** @psalm-suppress InvalidArgument Trust me on this one, Psalm. */
+        return Discretion::getDatabase()->exists(
+            "SELECT count(*) FROM discretion_users WHERE username = ?",
+            $username
+        );
+    }
 }
