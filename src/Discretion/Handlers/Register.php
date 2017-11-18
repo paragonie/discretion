@@ -123,8 +123,10 @@ class Register implements HandlerInterface
         ) {
             throw new SecurityException('Invalid types');
         }
+
+        // Validate the ReCAPTCHA response:
         $settings = Discretion::getSettings();
-        if (isset($settings['recaptcha']['secret-key'])) {
+        if (!empty($settings['recaptcha']['secret-key'])) {
             if (empty($post['g-recaptcha-response'])) {
                 throw new SecurityException('Please complete the CAPTCHA.');
             }
@@ -139,13 +141,18 @@ class Register implements HandlerInterface
         if (!\is_string($email)) {
             throw new SecurityException('Invalid email address.');
         }
+
+        // If the username is already taken, do not allow it to be registered.
         if (User::usernameIsTaken($post['username'])) {
             throw new SecurityException('Username is already taken.');
         }
 
+        // Both passphrases need to match.
         if (!\hash_equals($post['passphrase'], $post['passphrase2'])) {
             throw new SecurityException('Passphrases do not match.');
         }
+
+        // Ensure the password is adequately strong.
         $zxcvbn = new Zxcvbn();
         $strength = $zxcvbn->passwordStrength($post['passphrase'],
             [
@@ -154,7 +161,6 @@ class Register implements HandlerInterface
                 $post['email']
             ]
         );
-
         // Fail closed to a reasonably high value:
         if (!isset($settings['zxcvbn-min-score'])) {
             $settings['zxcvbn-min-score'] = 3;
@@ -163,11 +169,14 @@ class Register implements HandlerInterface
             throw new SecurityException('Passphrase strength is inadequate.');
         }
 
-        $oath = new Oath();
-        // Verify two sequential 2FA codes generated from our 2FA secret:
+        // Ensure that the two 2FA responses are NOT identical.
         if (\hash_equals($post['twoFactor1'], $post['twoFactor2'])) {
+            // The two cannot be the same:
             throw new SecurityException('Incorrect two-factor authentication code.');
         }
+
+        // Verify two sequential 2FA codes generated from our 2FA secret:
+        $oath = new Oath();
         if (!$oath->verifyTotp($_SESSION['registration']['twoFactorSecret'], $post['twoFactor1'], 2)) {
             throw new SecurityException('Incorrect two-factor authentication code.');
         }

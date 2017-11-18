@@ -2,6 +2,7 @@
 declare(strict_types=1);
 
 use ParagonIE\Discretion\Handlers\ControlPanel\{
+    Contacts,
     Index as ControlPanelIndex
 };
 use ParagonIE\Discretion\Handlers\{
@@ -23,6 +24,7 @@ if (!isset($app)) {
 // Routes
 $app->group('/manage',
     function (App $app) {
+        $app->any('/contacts', Contacts::class);
         $app->any('/', ControlPanelIndex::class);
         $app->any('', ControlPanelIndex::class);
     }
