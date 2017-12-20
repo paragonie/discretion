@@ -164,7 +164,7 @@ class User extends Struct implements Unique
      */
     public function setPassword(HiddenString $password): self
     {
-        // Prehash it to prevent
+        // Prehash it to prevent bcrypt truncation.
         $preHash = Base64UrlSafe::encode(
             \ParagonIE_Sodium_Compat::crypto_generichash(
                 $password->getString(),
