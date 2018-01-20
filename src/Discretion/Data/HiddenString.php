@@ -52,7 +52,7 @@ final class HiddenString
     {
         try {
             \sodium_memzero($this->internalStringValue);
-        } catch (\Error $ex) {
+        } catch (\Throwable $ex) {
             $this->internalStringValue ^= $this->internalStringValue;
             unset($this->internalStringValue);
         }
