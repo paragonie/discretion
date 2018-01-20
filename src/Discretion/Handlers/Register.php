@@ -30,6 +30,12 @@ class Register implements HandlerInterface
      * @param ResponseInterface $response
      * @param array $args
      * @return ResponseInterface
+     * @throws \Error
+     * @throws \Exception
+     * @throws \ParagonIE\Discretion\Exception\DatabaseException
+     * @throws \Twig_Error_Loader
+     * @throws \Twig_Error_Runtime
+     * @throws \Twig_Error_Syntax
      */
     public function __invoke(
         RequestInterface $request,
@@ -90,6 +96,7 @@ class Register implements HandlerInterface
      * @param Request $request
      * @return Response
      * @throws SecurityException
+     * @throws \ParagonIE\Discretion\Exception\DatabaseException
      */
     protected function processRegistrationRequest(Request $request): Response
     {
@@ -157,7 +164,7 @@ class Register implements HandlerInterface
         $strength = $zxcvbn->passwordStrength($post['passphrase'],
             [
                 $post['username'],
-                $post['fullName'],
+                $post['fullName'] ?? '',
                 $post['email']
             ]
         );
@@ -195,6 +202,13 @@ class Register implements HandlerInterface
         if (!$user->create()) {
             throw new SecurityException('An unknown database error occurred.');
         }
+
+        Discretion::securityLog(
+            'User account created',
+            [
+                'username' => $post['username']
+            ]
+        );
 
         // Success: Regenerate session, set User ID.
         unset($_SESSION['registration']);

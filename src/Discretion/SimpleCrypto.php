@@ -45,6 +45,8 @@ class SimpleCrypto
      * @param HiddenString $message
      * @param HiddenString $key
      * @return string
+     * @throws \SodiumException
+     * @throws \TypeError
      */
     public static function encrypt(HiddenString $message, HiddenString $key): string
     {
@@ -88,6 +90,8 @@ class SimpleCrypto
      * @param HiddenString $message
      * @param HiddenString $key
      * @return string
+     * @throws \SodiumException
+     * @throws \TypeError
      */
     public static function encryptRaw(HiddenString $message, HiddenString $key): string
     {

@@ -20,8 +20,27 @@ $signingKey = \ParagonIE\Sapient\CryptographyKeys\SigningSecretKey::generate();
     \ParagonIE\ConstantTime\Base64UrlSafe::encode(\random_bytes(32))
 );
 
+// Chronicle setup
+$chronicleSecretKey = \ParagonIE\Sapient\CryptographyKeys\SigningSecretKey::generate();
+$chroniclePublicKey = $chronicleSecretKey->getPublickey();
+
 // Write the default settings to the local settings file.
 $localSettings = [
+    'chronicle' => [
+        'enabled' => false,
+        'url' => 'https://local-chronicle.example.com',
+        'public-key' => '/* obtain from upstream */',
+        'encryption' => [
+            'enabled' => false,
+            'symmetric-key' => false,
+            'key' => '/* public key for message encryption */'
+        ],
+        'local' => [
+            'client-id' => 'obtain from the chronicle',
+            'signing-public-key' => $chroniclePublicKey->getString(),
+            'signing-secret-key' => $chronicleSecretKey->getString(),
+        ]
+    ],
     'database' => [
         'dsn' => 'pgsql:host=localhost;port=5432;dbname=discretion',
         'username' => 'charlie',

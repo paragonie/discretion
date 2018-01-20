@@ -13,3 +13,5 @@ require DISCRETION_APP_ROOT . '/src/dependencies.php';
 
 // Setup the database connection
 require DISCRETION_APP_ROOT . '/src/database.php';
+
+require DISCRETION_APP_ROOT . '/src/chronicle.php';

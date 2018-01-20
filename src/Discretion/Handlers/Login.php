@@ -3,6 +3,7 @@ declare(strict_types=1);
 namespace ParagonIE\Discretion\Handlers;
 
 use Kelunik\TwoFactor\Oath;
+use Monolog\Logger;
 use ParagonIE\Discretion\Data\HiddenString;
 use ParagonIE\Discretion\Discretion;
 use ParagonIE\Discretion\Exception\{
@@ -32,6 +33,10 @@ class Login implements HandlerInterface
      * @param ResponseInterface $response
      * @param array $args
      * @return ResponseInterface
+     * @throws \Error
+     * @throws \Twig_Error_Loader
+     * @throws \Twig_Error_Runtime
+     * @throws \Twig_Error_Syntax
      */
     public function __invoke(
         RequestInterface $request,
@@ -108,17 +113,34 @@ class Login implements HandlerInterface
 
         // Two-factor authentication check:
         $oath = new Oath();
+        $passwordSuccess = $authStatus;
         $authStatus = $authStatus && $oath->verifyTotp(
             $user->get2FASecret()->getString(),
             $post['twoFactor']
         );
 
         if (!$authStatus) {
+            if ($passwordSuccess) {
+                Discretion::securityLog(
+                    'Correct password, incorrect 2FA code. Possible password breach.',
+                    [
+                        'username' => $post['username']
+                    ],
+                    Logger::WARNING
+                );
+            }
             // We used near-constant-time operations. Good luck figuring out which it was!
             throw new SecurityException(
                 'Invalid username, password, or two-factor authentication challenge code.'
             );
         }
+        Discretion::securityLog(
+            'User successfully authenticated.',
+            [
+                'username' => $post['username']
+            ],
+            Logger::INFO
+        );
         try {
             \session_regenerate_id(true);
             $_SESSION['user_id'] = $user->id();

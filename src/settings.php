@@ -25,7 +25,7 @@ return [
             ],
             'settings' => [
                 // Defaults to 'html' strategy:
-                'autoescape' => true
+                'autoescape' => 'html'
             ]
         ],
 

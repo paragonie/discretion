@@ -2,6 +2,7 @@
 declare(strict_types=1);
 namespace ParagonIE\Discretion;
 
+use Monolog\Logger;
 use ParagonIE\AntiCSRF\AntiCSRF;
 use ParagonIE\ConstantTime\Base64UrlSafe;
 use ParagonIE\CSPBuilder\CSPBuilder;
@@ -37,6 +38,9 @@ class Discretion
     /** @var HiddenString $localEncryptionKey */
     protected static $localEncryptionKey;
 
+    /** @var Logger $logger */
+    protected static $logger;
+
     /** @var array $settings */
     protected static $settings;
 
@@ -56,6 +60,7 @@ class Discretion
      * @param array $headers
      * @param int $status
      * @return Response
+     * @throws \Error
      */
     public static function createNormalResponse(
         string $body = '',
@@ -85,6 +90,11 @@ class Discretion
      * @param int $statusCode
      * @param array $headers
      * @return Response
+     *
+     * @throws \Error
+     * @throws \Twig_Error_Loader
+     * @throws \Twig_Error_Runtime
+     * @throws \Twig_Error_Syntax
      */
     public static function errorResponse(
         string $errorMessage = '',
@@ -212,6 +222,14 @@ class Discretion
     }
 
     /**
+     * @return Logger
+     */
+    public static function getLogger(): Logger
+    {
+        return self::$logger;
+    }
+
+    /**
      * @return Sapient
      */
     public static function getSapient(): Sapient
@@ -305,6 +323,19 @@ class Discretion
     }
 
     /**
+     * @param string $message
+     * @param array $context
+     * @param int $level
+     * @return void
+     */
+    public static function securityLog(string $message, array $context = [], int $level = Logger::INFO)
+    {
+        if (self::$logger instanceof Logger) {
+            self::$logger->log($level, $message, $context);
+        }
+    }
+
+    /**
      * @param AntiCSRF $antiCSRF
      * @return AntiCSRF
      */
@@ -334,6 +365,16 @@ class Discretion
     {
         self::$easyDb = $db;
         return self::$easyDb;
+    }
+
+    /**
+     * @param Logger $logger
+     * @return Logger
+     */
+    public static function setMonolog(Logger $logger): Logger
+    {
+        self::$logger = $logger;
+        return self::$logger;
     }
 
     /**
@@ -376,6 +417,11 @@ class Discretion
      * @param array $headers
      * @param int $status
      * @return Response
+     *
+     * @throws \Error
+     * @throws \Twig_Error_Loader
+     * @throws \Twig_Error_Runtime
+     * @throws \Twig_Error_Syntax
      */
     public static function view(
         string $template,
