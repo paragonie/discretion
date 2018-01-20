@@ -72,7 +72,7 @@ class Login implements HandlerInterface
             throw new SecurityException('CSRF Mitigation not applied.');
         }
 
-        /** @var array<mised, string> $post */
+        /** @var array<mixed, string> $post */
         $post = $request->getParsedBody();
 
         // Required fields
