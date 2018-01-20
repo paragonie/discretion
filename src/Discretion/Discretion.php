@@ -331,6 +331,7 @@ class Discretion
     public static function securityLog(string $message, array $context = [], int $level = Logger::INFO)
     {
         if (self::$logger instanceof Logger) {
+            /** @psalm-suppress UndefinedClass of Boolean, defined in Monolog\Logger */
             self::$logger->log($level, $message, $context);
         }
     }
