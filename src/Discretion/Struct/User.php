@@ -61,6 +61,7 @@ class User extends Struct implements Unique
      */
     public static function byUsername(string $username): self
     {
+        /** @var int $userId */
         $userId = Discretion::getDatabase()->cell(
             "SELECT userid FROM discretion_users WHERE username = ?",
             $username

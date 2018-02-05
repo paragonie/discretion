@@ -13,8 +13,12 @@ use ParagonIE\Discretion\Discretion;
 if (!isset($app)) {
     $app = new App();
 }
+if (!($app instanceof App)) {
+    throw new TypeError('$app must be an instance of \\Slim\\App.');
+}
 /** @var Container $container */
 $container = $app->getContainer();
+
 /** @var array $settings */
 $settings = $container->get('settings');
 
@@ -26,12 +30,13 @@ try {
 }
 \ParagonIE\Discretion\Discretion::setAntiCSRF($antiCsrf);
 
-$cspBuilder = CSPBuilder::fromData($settings['csp-builder']);
+$cspBuilder = CSPBuilder::fromData((string) $settings['csp-builder']);
 Discretion::setCSPBuilder($cspBuilder);
 
+/** @var array<string, array<string, string>> $twigSettings */
 $twigSettings = $settings['twig'];
-$twigLoader = new \Twig_Loader_Filesystem($twigSettings['paths']);
-Discretion::setTwig(new \Twig_Environment($twigLoader, $twigSettings['settings']));
+$twigLoader = new \Twig_Loader_Filesystem((array) $twigSettings['paths']);
+Discretion::setTwig(new \Twig_Environment($twigLoader, (array) $twigSettings['settings']));
 
 $container['view'] =
     /**
@@ -65,11 +70,20 @@ $container['logger'] =
      * @param Container $c
      * @return \Monolog\Logger
      */
-    function (\Slim\Container $c): \Monolog\Logger {
-        $settings = $c->get('settings')['logger'];
+    function (\Slim\Container $c): \Monolog\Logger
+    {
+        /** @var array<string, array<string, string>> $set */
+        $set = $c->get('settings');
+        /** @var array<string, string> $settings */
+        $settings = $set['logger'];
         $logger = new Monolog\Logger($settings['name']);
         $logger->pushProcessor(new Monolog\Processor\UidProcessor());
-        $logger->pushHandler(new Monolog\Handler\StreamHandler($settings['path'], $settings['level']));
+        $logger->pushHandler(
+            new Monolog\Handler\StreamHandler(
+                (string) $settings['path'],
+                (int) $settings['level']
+            )
+        );
         return $logger;
     };
 

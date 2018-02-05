@@ -4,6 +4,7 @@ if (!\is_readable(DISCRETION_APP_ROOT . '/local/settings.json')) {
     exit(1);
 }
 
+/** @var array<string, mixed> $settings */
 $settings = \json_decode(
     (string) \file_get_contents(DISCRETION_APP_ROOT . '/local/settings.json'),
     true
@@ -11,11 +12,13 @@ $settings = \json_decode(
 \ParagonIE\Discretion\Discretion::setSettings($settings);
 
 try {
+    /** @var array<string, string> $dbsett */
+    $dbsett = $settings['database'];
     $db = \ParagonIE\EasyDB\Factory::create(
-        $settings['database']['dsn'],
-        $settings['database']['username'] ?? '',
-        $settings['database']['password'] ?? '',
-        $settings['database']['options'] ?? []
+        (string) ($dbsett['dsn'] ?? ''),
+        (string) ($dbsett['username'] ?? ''),
+        (string) ($dbsett['password'] ?? ''),
+        (array) ($dbsett['options'] ?? [])
     );
 
     \ParagonIE\Discretion\Discretion::setDatabase($db);

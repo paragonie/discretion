@@ -16,6 +16,7 @@ use Psr\Log\LogLevel;
 /** @var array $settings */
 $settings = \ParagonIE\Discretion\Discretion::getSettings();
 if (isset($settings['chronicle'])) {
+    /** @var array<string, string|array<string, string>> $chronicle */
     $chronicle = $settings['chronicle'];
     if (isset(
         $chronicle['enabled'],
@@ -23,8 +24,21 @@ if (isset($settings['chronicle'])) {
         $chronicle['public-key'],
         $chronicle['local']
     )) {
+        if (!\is_string($chronicle['url'])) {
+            throw new TypeError('"url" is not a string');
+        }
+        if (!\is_string($chronicle['public-key'])) {
+            throw new TypeError('"public-key" is not a string');
+        }
+        if (!\is_array($chronicle['encryption'])) {
+            throw new TypeError('"encryption" is not an array');
+        }
+        if (!\is_array($chronicle['local'])) {
+            throw new TypeError('"local" is not an array');
+        }
+
         $quill = (new Quill())
-            ->setChronicleURL($chronicle['url'])
+            ->setChronicleURL((string) $chronicle['url'])
             ->setServerPublicKey(
                 new SigningPublicKey(
                     Base64UrlSafe::decode($chronicle['public-key'])

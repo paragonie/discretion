@@ -23,13 +23,13 @@ abstract class Struct
     /** @var int $id */
     protected $id = 0;
 
-    /** @var \DateTimeImmutable $created */
+    /** @var \DateTimeImmutable|null $created */
     protected $created = null;
 
-    /** @var \DateTimeImmutable $modified */
+    /** @var \DateTimeImmutable|null $modified */
     protected $modified = null;
 
-    /** @var array $objectCache */
+    /** @var array<string, Struct> $objectCache */
     protected static $objectCache = [];
 
     /** @var string $runtimeCacheKey */
@@ -55,25 +55,31 @@ abstract class Struct
             }
         }
         $db = Discretion::getDatabase();
+        /** @var array<string, mixed> $row */
         $row = $db->row(
             "SELECT * FROM " .
-                $db->escapeIdentifier(static::TABLE_NAME) .
+                $db->escapeIdentifier((string) static::TABLE_NAME) .
             " WHERE " .
-                $db->escapeIdentifier(static::PRIMARY_KEY) .
+                $db->escapeIdentifier((string) static::PRIMARY_KEY) .
             " = ?",
             $id
         );
         if (empty($row)) {
             throw new RecordNotFound(static::class . '::' . $id);
         }
+        /** @psalm-suppress MixedAssignment */
         foreach (static::DB_FIELD_NAMES as $field => $property) {
+            /**
+             * @psalm-suppress MixedArrayOffset
+             * @psalm-suppress MixedAssignment
+             */
             $self->{$property} = $row[$field];
         }
         if (isset($row['created'])) {
-            $self->created = new \DateTimeImmutable($row['created']);
+            $self->created = new \DateTimeImmutable((string) $row['created']);
         }
         if (isset($row['modified'])) {
-            $self->modified = new \DateTimeImmutable($row['modified']);
+            $self->modified = new \DateTimeImmutable((string) $row['modified']);
         }
         if ($self instanceof Unique) {
             self::$objectCache[$self->getCacheKey($id)] = $self;
@@ -85,6 +91,8 @@ abstract class Struct
      * @param int $id
      * @return string
      * @throws \Error
+     * @throws \SodiumException
+     * @throws \TypeError
      */
     public function getCacheKey(int $id = 0): string
     {
@@ -131,6 +139,7 @@ abstract class Struct
 
     /**
      * @return bool
+     * @throws \Exception
      */
     public function create(): bool
     {
@@ -140,24 +149,28 @@ abstract class Struct
         $db = Discretion::getDatabase();
         $db->beginTransaction();
 
+        /** @var array<string, mixed> $fields */
         $fields = [];
+        /** @psalm-suppress MixedAssignment */
         foreach (static::DB_FIELD_NAMES as $field => $property) {
             if ($field === static::PRIMARY_KEY) {
                 // No
                 continue;
             }
-            if (\in_array($field, static::BOOLEAN_FIELDS)) {
+            if (\in_array($field, (array) static::BOOLEAN_FIELDS, true)) {
+                /** @psalm-suppress MixedArrayOffset */
                 $fields[$field] = Discretion::getDatabaseBoolean(
                     !empty($this->{$property})
                 );
             } else {
+                /** @psalm-suppress MixedArrayOffset */
                 $fields[$field] = $this->{$property};
             }
         }
         $this->id = (int) $db->insertGet(
-            static::TABLE_NAME,
+            (string) (static::TABLE_NAME),
             $fields,
-            static::PRIMARY_KEY
+            (string) (static::PRIMARY_KEY)
         );
         if ($this instanceof Unique) {
             self::$objectCache[$this->getCacheKey()] = $this;
@@ -167,6 +180,7 @@ abstract class Struct
 
     /**
      * @return bool
+     * @throws \Exception
      */
     public function update(): bool
     {
@@ -176,22 +190,28 @@ abstract class Struct
         $db = Discretion::getDatabase();
         $db->beginTransaction();
 
+        /** @var array<string, mixed> $fields */
         $fields = [];
+        /** @psalm-suppress MixedAssignment */
         foreach (static::DB_FIELD_NAMES as $field => $property) {
+            if (!\is_string($field)) {
+                throw new \TypeError('Field name must be a string');
+            }
             if ($field === static::PRIMARY_KEY) {
                 // No
                 continue;
             }
-            if (\in_array($field, static::BOOLEAN_FIELDS)) {
+            if (\in_array($field, (array) static::BOOLEAN_FIELDS, true)) {
                 $fields[$field] = Discretion::getDatabaseBoolean(
                     !empty($this->{$property})
                 );
             } else {
+                /** @psalm-suppress MixedAssignment */
                 $fields[$field] = $this->{$property};
             }
         }
         $db->update(
-            static::TABLE_NAME,
+            (string) (static::TABLE_NAME),
             $fields,
             [static::PRIMARY_KEY => $this->id]
         );
@@ -240,6 +260,7 @@ abstract class Struct
                 throw new \TypeError('Property ' . $name . ' expects type ' . $propType . ', ' . $valueType . ' given.');
             }
         }
+        /** @psalm-suppress MixedAssignment */
         $this->{$name} = $value;
     }
 }

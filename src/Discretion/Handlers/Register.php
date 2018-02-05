@@ -5,6 +5,7 @@ namespace ParagonIE\Discretion\Handlers;
 use Kelunik\TwoFactor\Oath;
 use ParagonIE\Discretion\Data\HiddenString;
 use ParagonIE\Discretion\Discretion;
+use ParagonIE\Discretion\Exception\DatabaseException;
 use ParagonIE\Discretion\Exception\SecurityException;
 use ParagonIE\Discretion\HandlerInterface;
 use ParagonIE\Discretion\Struct\User;
@@ -69,12 +70,17 @@ class Register implements HandlerInterface
             ->addSource('script-src', 'https://www.google.com')
             ->addSource('script-src', 'https://www.gstatic.com');
 
+        /** @var array<string, string> $reg */
+        $reg = $_SESSION['registration'];
+        /** @var string $twoFactorSecret */
+        $twoFactorSecret = $reg['twoFactorSecret'];
+
         return Discretion::view(
             'register.twig',
             [
                 'registration' => $_SESSION['registration'],
                 'qrcode' => (new Oath())->getUri(
-                    (string) $_SESSION['registration']['twoFactorSecret'],
+                    (string) $twoFactorSecret,
                     (string) $_SERVER['HTTP_HOST'],
                     'R_E_P_L_A_C_E_M_E'
                 )
@@ -95,8 +101,9 @@ class Register implements HandlerInterface
     /**
      * @param Request $request
      * @return Response
+     * @throws DatabaseException
      * @throws SecurityException
-     * @throws \ParagonIE\Discretion\Exception\DatabaseException
+     * @throws \Exception
      */
     protected function processRegistrationRequest(Request $request): Response
     {
@@ -118,6 +125,8 @@ class Register implements HandlerInterface
         )) {
             throw new SecurityException('Incomplete registration');
         }
+        /** @var array<string, string> $reg */
+        $reg = $_SESSION['registration'];
 
         // Type checks
         if (
@@ -127,23 +136,28 @@ class Register implements HandlerInterface
             || !\is_string($post['passphrase2'])
             || !\is_string($post['twoFactor1'])
             || !\is_string($post['twoFactor2'])
+            || !\is_string($reg['twoFactorSecret'])
         ) {
             throw new SecurityException('Invalid types');
         }
+        /** @var string $twoFactorSecret */
+        $twoFactorSecret = $reg['twoFactorSecret'];
 
         // Validate the ReCAPTCHA response:
+        /** @var array<string, array<string, string>> $settings */
         $settings = Discretion::getSettings();
         if (!empty($settings['recaptcha']['secret-key'])) {
             if (empty($post['g-recaptcha-response'])) {
                 throw new SecurityException('Please complete the CAPTCHA.');
             }
             $recaptcha = new ReCaptcha($settings['recaptcha']['secret-key']);
-            if (!$recaptcha->verify($post['g-recaptcha-response'], $_SERVER['REMOTE_ADDR'])) {
+            if (!$recaptcha->verify($post['g-recaptcha-response'], (string) ($_SERVER['REMOTE_ADDR']))) {
                 throw new SecurityException('Incorrect CAPTCHA response.');
             }
         }
 
         // Ensure this is a valid email address.
+        /** @var string $email */
         $email = \filter_var($post['email'], FILTER_VALIDATE_EMAIL);
         if (!\is_string($email)) {
             throw new SecurityException('Invalid email address.');
@@ -184,10 +198,10 @@ class Register implements HandlerInterface
 
         // Verify two sequential 2FA codes generated from our 2FA secret:
         $oath = new Oath();
-        if (!$oath->verifyTotp($_SESSION['registration']['twoFactorSecret'], $post['twoFactor1'], 2)) {
+        if (!$oath->verifyTotp($twoFactorSecret, $post['twoFactor1'], 2)) {
             throw new SecurityException('Incorrect two-factor authentication code.');
         }
-        if (!$oath->verifyTotp($_SESSION['registration']['twoFactorSecret'], $post['twoFactor2'], 3)) {
+        if (!$oath->verifyTotp($twoFactorSecret, $post['twoFactor2'], 3)) {
             throw new SecurityException('Incorrect two-factor authentication code.');
         }
 
@@ -197,7 +211,7 @@ class Register implements HandlerInterface
             ->setEmail($post['email'])
             ->setFullName($post['fullName'] ?? '')
             ->setPassword(new HiddenString($post['passphrase']))
-            ->set2FASecret(new HiddenString($_SESSION['registration']['twoFactorSecret']));
+            ->set2FASecret(new HiddenString($twoFactorSecret));
 
         if (!$user->create()) {
             throw new SecurityException('An unknown database error occurred.');

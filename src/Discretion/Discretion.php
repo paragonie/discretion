@@ -407,6 +407,7 @@ class Discretion
      */
     public static function setTwigVar(string $key, $value)
     {
+        /** @psalm-suppress MixedAssignment */
         self::$twigVars[$key] = $value;
     }
 

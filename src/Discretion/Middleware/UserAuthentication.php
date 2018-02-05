@@ -13,6 +13,7 @@ use Psr\Http\Message\{
     ResponseInterface
 };
 use Slim\Http\Request;
+use Slim\Http\Response;
 
 /**
  * Class UserAuthentication
@@ -40,6 +41,10 @@ class UserAuthentication implements MiddlewareInterface
      * @param ResponseInterface $response
      * @param callable $next
      * @return ResponseInterface
+     * @throws \Error
+     * @throws \Twig_Error_Loader
+     * @throws \Twig_Error_Runtime
+     * @throws \Twig_Error_Syntax
      */
     public function __invoke(
         RequestInterface $request,
@@ -49,7 +54,11 @@ class UserAuthentication implements MiddlewareInterface
         try {
             if ($request instanceof Request) {
                 $this->assertLoggedIn();
+                /** @var string $prop */
                 foreach (static::PROPERTIES_TO_SET as $prop) {
+                    if (!\is_string($prop)) {
+                        continue;
+                    }
                     $request = $request->withAttribute($prop, true);
                 }
             }
@@ -58,6 +67,11 @@ class UserAuthentication implements MiddlewareInterface
         } catch (\Throwable $ex) {
             return Discretion::errorResponse('An unknown error has occurred.');
         }
-        return $next($request, $response);
+        /** @var ResponseInterface $response */
+        $response = $next($request, $response);
+        if (!($request instanceof ResponseInterface)) {
+            throw new \TypeError('Response not an instance of ResponseInterface');
+        }
+        return $response;
     }
 }

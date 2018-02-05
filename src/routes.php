@@ -20,6 +20,9 @@ use Slim\App;
 if (!isset($app)) {
     $app = new App();
 }
+if (!($app instanceof App)) {
+    throw new TypeError('$app must be an instance of \\Slim\\App.');
+}
 
 // Routes
 $app->group('/manage',

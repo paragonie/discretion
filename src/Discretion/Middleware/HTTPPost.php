@@ -23,6 +23,7 @@ class HTTPPost implements MiddlewareInterface
     /**
      * @return void
      * @throws SecurityException
+     * @throws \Error
      */
     protected function assertCSRFPassed()
     {
@@ -34,12 +35,16 @@ class HTTPPost implements MiddlewareInterface
     }
 
     /**
-     * Ensure all requests are authenticated.
+     * Ensure all requests are immune to CSRF.
      *
      * @param RequestInterface $request
      * @param ResponseInterface $response
      * @param callable $next
      * @return ResponseInterface
+     * @throws \Error
+     * @throws \Twig_Error_Loader
+     * @throws \Twig_Error_Runtime
+     * @throws \Twig_Error_Syntax
      */
     public function __invoke(
         RequestInterface $request,
@@ -50,7 +55,11 @@ class HTTPPost implements MiddlewareInterface
             if ($request->isPost()) {
                 try {
                     $this->assertCSRFPassed();
+                    /** @var string $prop */
                     foreach (static::PROPERTIES_TO_SET as $prop) {
+                        if (!\is_string($prop)) {
+                            continue;
+                        }
                         $request = $request->withAttribute($prop, true);
                     }
                 } catch (SecurityException $ex) {
@@ -63,6 +72,11 @@ class HTTPPost implements MiddlewareInterface
                 }
             }
         }
-        return $next($request, $response);
+        /** @var ResponseInterface $response */
+        $response = $next($request, $response);
+        if (!($request instanceof ResponseInterface)) {
+            throw new \TypeError('Response not an instance of ResponseInterface');
+        }
+        return $response;
     }
 }
