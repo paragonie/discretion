@@ -24,6 +24,10 @@ if (isset($settings['chronicle'])) {
         $chronicle['public-key'],
         $chronicle['local']
     )) {
+        if (!$chronicle['enabled']) {
+            // Chronicle is not enabled.
+            return;
+        }
         if (!\is_string($chronicle['url'])) {
             throw new TypeError('"url" is not a string');
         }
