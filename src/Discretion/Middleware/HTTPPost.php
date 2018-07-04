@@ -74,7 +74,7 @@ class HTTPPost implements MiddlewareInterface
         }
         /** @var ResponseInterface $response */
         $response = $next($request, $response);
-        if (!($request instanceof ResponseInterface)) {
+        if (!($response instanceof ResponseInterface)) {
             throw new \TypeError('Response not an instance of ResponseInterface');
         }
         return $response;
